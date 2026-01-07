@@ -22,4 +22,20 @@ model User {
   name      String
   role      UserRole @default(CLIENT)
   createdAt DateTime @default(now())
+
+  tasks     Task[]   @relation("UserTasks")
 }
+
+model Task {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  price       Int?
+  status      String   @default("OPEN")
+  createdAt   DateTime @default(now())
+
+  clientId    String
+  client      User     @relation("UserTasks", fields: [clientId], references: [id])
+}
+
+
