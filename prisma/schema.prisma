@@ -15,6 +15,13 @@ enum UserRole {
   ADMIN
 }
 
+enum TaskStatus {
+  OPEN
+  ASSIGNED
+  COMPLETED
+}
+
+
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
@@ -24,6 +31,7 @@ model User {
   createdAt DateTime @default(now())
 
   tasks     Task[]   @relation("UserTasks")
+  work      Task[]   @relation("WorkerTasks")
 }
 
 model Task {
@@ -36,6 +44,13 @@ model Task {
 
   clientId    String
   client      User     @relation("UserTasks", fields: [clientId], references: [id])
+
+  workerId    String?
+  worker      User?      @relation("WorkerTasks", fields: [workerId], references: [id])
+
+  workerId    String?
+  worker      User?      @relation("WorkerTasks", fields: [workerId], references: [id])
+
 }
 
 
