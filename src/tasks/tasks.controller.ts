@@ -12,13 +12,17 @@ import { JwtAuthGuard } from '../auth/jwt/jwt.guard';
 import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
+import { Roles } from '../auth/roles/roles.decorator';
+import { RolesGuard } from '../auth/roles/roles.guard';
 
-@UseGuards(JwtAuthGuard)
+
+@UseGuards(JwtAuthGuard,RolesGuard)
 @Controller('tasks')
 export class TasksController {
   constructor(private tasks: TasksService) {}
 
   @Post()
+  @Roles('CLIENT')
   createTask(@Req() req: any,
   @Body() body: CreateTaskDto,
 ) {
@@ -26,22 +30,30 @@ export class TasksController {
 }
 
 
-  @Get()
-  getMyTasks(@Req() req: any) {
-    return this.tasks.getMyTasks(req.user.id);
+  @Get('open')
+  @Roles('WORKER')
+  getOpenTasks() {
+    return this.tasks.getOpenTasks();
   }
 
-  @Patch(':id')
-  updateTask(
+  @Patch(':id/accept')
+  @Roles('WORKER')
+  acceptTask(
     @Req() req: any,
     @Param('id') taskId: string,
-    @Body() body: UpdateTaskDto,
   ) {
-    return this.tasks.updateTask(
+    return this.tasks.acceptTask(
       req.user.id,
       taskId,
-      body,
     );
+  }
+  @Patch(':id/complete')
+  @Roles('CLIENT')
+  completeTask(
+    @Req() req: any,
+    @Param('id') taskId: string,
+  ) {
+    return this.tasks.completeTask(req.user.id, taskId);
   }
 }
     

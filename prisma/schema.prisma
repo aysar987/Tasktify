@@ -39,7 +39,7 @@ model Task {
   title       String
   description String?
   price       Int?
-  status      String   @default("OPEN")
+  status      TaskStatus   @default(OPEN)
   createdAt   DateTime @default(now())
 
   clientId    String
@@ -48,9 +48,7 @@ model Task {
   workerId    String?
   worker      User?      @relation("WorkerTasks", fields: [workerId], references: [id])
 
-  workerId    String?
-  worker      User?      @relation("WorkerTasks", fields: [workerId], references: [id])
-
+  
 }
 
 

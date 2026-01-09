@@ -27,6 +27,51 @@ export class TasksService {
       where: { clientId: userId },
     });
   }
+  // WORKER: VIEW OPEN TASKS
+  getOpenTasks() {
+    return this.prisma.task.findMany({
+      where: {
+        status: 'OPEN',
+      },
+    });
+  }
+  // WORKER: ACCEPT TASK
+  async acceptTask(workerId: string, taskId: string) {
+    const task = await this.prisma.task.findUnique({
+     where: { id: taskId },
+    });
+
+    if (!task || task.status !== 'OPEN') {
+     throw new ForbiddenException('Task not available');
+    }
+
+    return this.prisma.task.update({
+     where: { id: taskId },
+     data: {
+        status: 'ASSIGNED',
+        worker: { connect: { id: workerId } },
+      },
+    });
+  }
+
+  // CLIENT: COMPLETE TASK
+  async completeTask(clientId: string, taskId: string) {
+    const task = await this.prisma.task.findUnique({
+      where: { id: taskId },
+    });
+
+    if (!task || task.clientId !== clientId) {
+     throw new ForbiddenException();
+    }
+
+    return this.prisma.task.update({
+     where: { id: taskId },
+     data: {
+        status: 'COMPLETED',
+      },
+    });
+  }
+
 
   // UPDATE TASK (ONLY OWNER)
   async updateTask(
@@ -47,4 +92,5 @@ export class TasksService {
       data,
     });
   }
+  
 }
