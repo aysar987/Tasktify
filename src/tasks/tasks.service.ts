@@ -41,8 +41,12 @@ export class TasksService {
      where: { id: taskId },
     });
 
-    if (!task || task.status !== 'OPEN') {
+    if (!task) {
      throw new ForbiddenException('Task not available');
+    }
+
+    if (task.status !== 'OPEN') {
+    throw new ForbiddenException('Task already taken');
     }
 
     return this.prisma.task.update({
@@ -77,15 +81,23 @@ export class TasksService {
   async updateTask(
     taskId: string,
     userId: string,
-    data: UpdateTaskDto,
+    data: any,
   ) {
     const task = await this.prisma.task.findUnique({
       where: { id: taskId },
     });
 
-    if (!task || task.clientId !== userId) {
+    if (!task) {
+    throw new ForbiddenException('Task not found');
+    }
+
+    if (task.clientId !== userId) {
       throw new ForbiddenException('You do not own this task');
     }
+
+    if (task.status !== 'OPEN') {
+    throw new ForbiddenException('Task already assigned');
+    } 
 
     return this.prisma.task.update({
       where: { id: taskId },
