@@ -2,6 +2,8 @@ import { Injectable, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
+import { TaskStatus } from '@prisma/client';
+
 
 @Injectable()
 export class TasksService {
@@ -31,7 +33,7 @@ export class TasksService {
   getOpenTasks() {
     return this.prisma.task.findMany({
       where: {
-        status: 'OPEN',
+        status: TaskStatus.OPEN,
       },
     });
   }
@@ -45,14 +47,14 @@ export class TasksService {
      throw new ForbiddenException('Task not available');
     }
 
-    if (task.status !== 'OPEN') {
-    throw new ForbiddenException('Task already taken');
+    if (task.status !== TaskStatus.OPEN) {
+      throw new ForbiddenException('Task not avaliable');
     }
 
     return this.prisma.task.update({
      where: { id: taskId },
      data: {
-        status: 'ASSIGNED',
+        status: TaskStatus.ASSIGNED,
         worker: { connect: { id: workerId } },
       },
     });
@@ -65,13 +67,17 @@ export class TasksService {
     });
 
     if (!task || task.clientId !== clientId) {
+      throw new ForbiddenException();
+    }
+
+    if (task.status !== TaskStatus.ASSIGNED) {
      throw new ForbiddenException();
     }
 
     return this.prisma.task.update({
      where: { id: taskId },
      data: {
-        status: 'COMPLETED',
+        status: TaskStatus.COMPLETED
       },
     });
   }
@@ -95,7 +101,7 @@ export class TasksService {
       throw new ForbiddenException('You do not own this task');
     }
 
-    if (task.status !== 'OPEN') {
+    if (task.status !== TaskStatus.OPEN) {
     throw new ForbiddenException('Task already assigned');
     } 
 
