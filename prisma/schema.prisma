@@ -32,6 +32,9 @@ model User {
 
   tasks     Task[]   @relation("UserTasks")
   work      Task[]   @relation("WorkerTasks")
+  givenReviews    Review[] @relation("GivenReviews")
+  receivedReviews Review[] @relation("ReceivedReviews")
+
 }
 
 model Task {
@@ -51,4 +54,19 @@ model Task {
   
 }
 
+model Review {
+  id        String   @id @default(uuid())
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+
+  taskId    String   @unique
+  task      Task     @relation(fields: [taskId], references: [id])
+
+  reviewerId String
+  reviewer   User     @relation("GivenReviews", fields: [reviewerId], references: [id])
+
+  workerId  String
+  worker    User     @relation("ReceivedReviews", fields: [workerId], references: [id])
+}
 
