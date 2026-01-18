@@ -51,6 +51,9 @@ model Task {
   workerId    String?
   worker      User?      @relation("WorkerTasks", fields: [workerId], references: [id])
 
+  review Review?
+
+
   
 }
 
