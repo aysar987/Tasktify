@@ -21,7 +21,6 @@ enum TaskStatus {
   COMPLETED
 }
 
-
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
@@ -30,31 +29,27 @@ model User {
   role      UserRole @default(CLIENT)
   createdAt DateTime @default(now())
 
-  tasks     Task[]   @relation("UserTasks")
-  work      Task[]   @relation("WorkerTasks")
+  tasks           Task[]   @relation("UserTasks")
+  works           Task[]   @relation("WorkerTasks")
   givenReviews    Review[] @relation("GivenReviews")
   receivedReviews Review[] @relation("ReceivedReviews")
-
 }
 
 model Task {
-  id          String   @id @default(uuid())
+  id          String     @id @default(uuid())
   title       String
   description String?
   price       Int?
-  status      TaskStatus   @default(OPEN)
-  createdAt   DateTime @default(now())
+  status      TaskStatus @default(OPEN)
+  createdAt   DateTime   @default(now())
 
-  clientId    String
-  client      User     @relation("UserTasks", fields: [clientId], references: [id])
+  clientId String
+  client   User   @relation("UserTasks", fields: [clientId], references: [id])
 
-  workerId    String?
-  worker      User?      @relation("WorkerTasks", fields: [workerId], references: [id])
+  workerId String?
+  worker   User?   @relation("WorkerTasks", fields: [workerId], references: [id])
 
-  review Review?
-
-
-  
+  review Review? @relation("TaskReview")
 }
 
 model Review {
@@ -63,13 +58,12 @@ model Review {
   comment   String?
   createdAt DateTime @default(now())
 
-  taskId    String   @unique
-  task      Task     @relation(fields: [taskId], references: [id])
+  taskId String @unique
+  task   Task   @relation("TaskReview", fields: [taskId], references: [id])
 
   reviewerId String
-  reviewer   User     @relation("GivenReviews", fields: [reviewerId], references: [id])
+  reviewer   User   @relation("GivenReviews", fields: [reviewerId], references: [id])
 
-  workerId  String
-  worker    User     @relation("ReceivedReviews", fields: [workerId], references: [id])
+  workerId String
+  worker   User   @relation("ReceivedReviews", fields: [workerId], references: [id])
 }
-
