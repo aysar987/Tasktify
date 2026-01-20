@@ -1,5 +1,9 @@
 import { Injectable, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { TaskStatus } from '@prisma/client';
+import { CreateReviewDto } from './dto/create-review.dto';
+
+
 
 @Injectable()
 export class ReviewsService {
@@ -8,7 +12,7 @@ export class ReviewsService {
     async createReview(
     clientId: string,
     taskId: string,
-    data: { rating: number; comment?: string },
+    data: CreateReviewDto,
   ) {
     const task = await this.prisma.task.findUnique({
       where: { id: taskId },
@@ -23,8 +27,8 @@ export class ReviewsService {
       throw new ForbiddenException('Not your task');
     }
 
-    if (task.status !== 'COMPLETED') {
-      throw new ForbiddenException('Task not completed');
+    if (task.status !== TaskStatus.COMPLETED) {
+    throw new ForbiddenException('Task not completed');
     }
 
     if (!task.workerId) {
@@ -50,5 +54,5 @@ export class ReviewsService {
     return this.prisma.review.findMany({
       where: { workerId },
     });
-  }$
+  }
 }
