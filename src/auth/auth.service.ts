@@ -1,7 +1,8 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcrypt';
+import * as argon2 from 'argon2';
+
 
 @Injectable()
 export class AuthService {
@@ -11,7 +12,7 @@ export class AuthService {
   ) {}
 
   async register(email: string, password: string, name: string) {
-    const hashed = await bcrypt.hash(password, 10);
+    const hashed = await argon2.hash(password);
 
     const user = await this.prisma.user.create({
       data: { email, password: hashed, name },
@@ -24,7 +25,7 @@ export class AuthService {
     const user = await this.prisma.user.findUnique({ where: { email } });
     if (!user) throw new UnauthorizedException();
 
-    const valid = await bcrypt.compare(password, user.password);
+    const valid = await argon2.verify(user.password, password);
     if (!valid) throw new UnauthorizedException();
 
     return this.signToken(user.id, user.email, user.role);

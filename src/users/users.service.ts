@@ -1,6 +1,6 @@
 import { Injectable, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import * as argon from 'argon2';
+import * as bcrypt from 'bcrypt';
 import { ChangePasswordDto } from './dto/change-password.dto';
 
 
@@ -41,21 +41,21 @@ export class UsersService {
       throw new ForbiddenException('User not found');
     }
 
-    const passwordMatch = await argon.verify(
-      user.password,
+    const isValid = await bcrypt.compare(
       dto.currentPassword,
+      user.password,
     );
 
-    if (!passwordMatch) {
+    if (!isValid) {
       throw new ForbiddenException('Current password is incorrect');
     }
 
-    const newHashedPassword = await argon.hash(dto.newPassword);
+    const newHashed = await bcrypt.hash(dto.newPassword, 10);
 
     await this.prisma.user.update({
       where: { id: userId },
       data: {
-        password: newHashedPassword,
+        password: newHashed,
       },
     });
 
