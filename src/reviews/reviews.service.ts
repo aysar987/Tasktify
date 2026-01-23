@@ -31,9 +31,14 @@ export class ReviewsService {
       throw new ForbiddenException('No worker assigned');
     }
 
+    if (task.workerId === userId) {
+      throw new ForbiddenException('You cannot review yourself');
+    }
+
     if (task.review) {
       throw new ForbiddenException('Already reviewed');
     }
+    
 
     return this.prisma.review.create({
       data: {
@@ -43,6 +48,8 @@ export class ReviewsService {
         reviewerId: userId,
         workerId: task.workerId,
       },
+
+      
     });
   }
 
@@ -51,4 +58,23 @@ export class ReviewsService {
       where: { workerId },
     });
   }
+
+  async getWorkerAverageRating(workerId: string) {
+    const result = await this.prisma.review.aggregate({
+      where: { workerId },
+      _avg: {
+        rating: true,
+      },
+      _count: {
+        rating: true,
+      },
+    });
+
+    return {
+      workerId,
+      averageRating: result._avg.rating ?? 0,
+      totalReviews: result._count.rating,
+    };
+  }
+
 }

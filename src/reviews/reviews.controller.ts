@@ -22,9 +22,9 @@ export class ReviewsController {
   @Roles('CLIENT')
   createReview(
     @Req() req: any,
-    @Body() dto: CreateReviewDto,
+    @Body() body: CreateReviewDto,
   ) {
-    return this.reviews.createReview(req.user.id, dto);
+    return this.reviews.createReview(req.user.id,body);
   }
 
   @Get('worker/:id')

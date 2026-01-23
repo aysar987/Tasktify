@@ -1,4 +1,4 @@
-import { IsInt, Min, Max, IsOptional, IsString } from 'class-validator';
+import { IsInt, Min, Max, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class CreateReviewDto {
   @IsInt()
@@ -10,7 +10,7 @@ export class CreateReviewDto {
   @IsString()
   comment?: string;
 
-  @IsString()
+  @IsUUID()
   taskId: string;
 }
 

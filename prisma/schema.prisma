@@ -66,4 +66,6 @@ model Review {
 
   workerId String
   worker   User   @relation("ReceivedReviews", fields: [workerId], references: [id])
+
+  @@index([workerId])
 }
