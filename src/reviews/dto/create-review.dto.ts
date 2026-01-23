@@ -9,4 +9,8 @@ export class CreateReviewDto {
   @IsOptional()
   @IsString()
   comment?: string;
+
+  @IsString()
+  taskId: string;
 }
+

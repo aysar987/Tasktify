@@ -18,14 +18,13 @@ import { CreateReviewDto } from './dto/create-review.dto';
 export class ReviewsController {
   constructor(private reviews: ReviewsService) {}
 
-  @Post(':taskId')
+  @Post()
   @Roles('CLIENT')
   createReview(
     @Req() req: any,
-    @Param('taskId') taskId: string,
-    @Body() body: CreateReviewDto,
+    @Body() dto: CreateReviewDto,
   ) {
-    return this.reviews.createReview(req.user.id, taskId, body);
+    return this.reviews.createReview(req.user.id, dto);
   }
 
   @Get('worker/:id')

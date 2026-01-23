@@ -3,32 +3,28 @@ import { PrismaService } from '../prisma/prisma.service';
 import { TaskStatus } from '@prisma/client';
 import { CreateReviewDto } from './dto/create-review.dto';
 
-
-
 @Injectable()
 export class ReviewsService {
-    constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) {}
 
-    async createReview(
-    clientId: string,
-    taskId: string,
-    data: CreateReviewDto,
-  ) {
+  async createReview(userId: string, dto: CreateReviewDto) {
     const task = await this.prisma.task.findUnique({
-      where: { id: taskId },
-      include: { review: true },
+      where: { id: dto.taskId },
+      include: {
+        review: true,
+      },
     });
 
     if (!task) {
       throw new ForbiddenException('Task not found');
     }
 
-    if (task.clientId !== clientId) {
+    if (task.clientId !== userId) {
       throw new ForbiddenException('Not your task');
     }
 
     if (task.status !== TaskStatus.COMPLETED) {
-    throw new ForbiddenException('Task not completed');
+      throw new ForbiddenException('Task not completed');
     }
 
     if (!task.workerId) {
@@ -41,10 +37,10 @@ export class ReviewsService {
 
     return this.prisma.review.create({
       data: {
-        rating: data.rating,
-        comment: data.comment,
+        rating: dto.rating,
+        comment: dto.comment,
         taskId: task.id,
-        reviewerId: clientId,
+        reviewerId: userId,
         workerId: task.workerId,
       },
     });
