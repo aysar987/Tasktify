@@ -31,4 +31,9 @@ export class ReviewsController {
   getWorkerReviews(@Param('id') workerId: string) {
     return this.reviews.getWorkerReviews(workerId);
   }
+
+  @Get('worker/:workerId/average')
+  getWorkerAverage(@Param('workerId') workerId: string) {
+    return this.reviewsService.getWorkerAverageRating(workerId);
+  }
 }
